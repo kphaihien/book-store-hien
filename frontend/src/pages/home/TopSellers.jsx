@@ -17,7 +17,6 @@ const TopSellers = () => {
     const {data=[],isLoading}=useFetchTopSellerBooksQuery();
     const books=data?.books
     
-
   return (
     <>
         <div className='py-10'>

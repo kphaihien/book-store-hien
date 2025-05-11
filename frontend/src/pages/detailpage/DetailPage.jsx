@@ -65,7 +65,7 @@ const DetailPage = () => {
                     </div>
 
                     {/*list book*/}
-                    {books?.length>0?(<div className='flex flex-row flex-wrap w-3/4 h-full gap-4 ml-auto rounded-lg'>
+                    {(books!==null&&books?.length>0)?(<div className='flex flex-row flex-wrap w-3/4 h-full gap-4 ml-auto rounded-lg'>
                         {
                            books?.map((book,index)=>(
                                 <CardList key={index} book={book}/>

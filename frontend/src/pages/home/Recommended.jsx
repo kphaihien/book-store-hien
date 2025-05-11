@@ -9,13 +9,14 @@ import 'swiper/css';
 import 'swiper/css/pagination';
 import 'swiper/css/navigation';
 import { useFetchAllBooksQuery } from '../../redux/features/books/bookApi';
+import Loading from '../../components/Loading';
 
 
 
 const Recommended = () => {
-    const {data:books=[]}=useFetchAllBooksQuery();
+    const {data:books=[],isLoading}=useFetchAllBooksQuery();
 
-    
+    if (isLoading){return <Loading/>}
     return (
         <>
             <div className='py-16'>

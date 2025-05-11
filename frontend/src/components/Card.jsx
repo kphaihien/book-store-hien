@@ -26,7 +26,7 @@ const Card = ({book}) => {
                       ><h3 className="mb-3 text-xl font-semibold hover:text-blue-600">
                               {book.title}
                           </h3></Link>
-                      <p className="mb-5 text-gray-600">{book?.description.length>60?`${book.description.slice(0,60)}...`:book.description}</p>
+                      <p className="mb-5 text-gray-600">{book?.description?.length>60?`${book.description.slice(0,60)}...`:book?.description}</p>
                       <p className="mb-5 font-medium">
                           {book.newPrice}$ <span className="ml-2 font-normal line-through">{book.oldPrice}$</span>
                       </p>
