@@ -14,9 +14,10 @@ import Loading from '../../components/Loading';
 
 
 const Recommended = () => {
-    const {data:books=[],isLoading}=useFetchAllBooksQuery();
+    const {data:books=[],isLoading,isError}=useFetchAllBooksQuery();
 
     if (isLoading){return <Loading/>}
+    if(isError){return <div>Xảy ra lỗi</div>}
     return (
         <>
             <div className='py-16'>
@@ -50,7 +51,7 @@ const Recommended = () => {
                 >
 
                     {
-                        books.length > 0 && books.slice(8,18).map((book, index) => (
+                        books?.length > 0 && books.slice(8,18).map((book, index) => (
                             <SwiperSlide key={index}>
                                 <BookCard book={book} />
                             </SwiperSlide>

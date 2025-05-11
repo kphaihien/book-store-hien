@@ -46,7 +46,7 @@ const CartPage = () => {
               onClick={()=>handleClearCart()}
                 type="button"
                 className={`relative flex items-center px-2 py-1 -m-2 text-black transition-all duration-200 transform 
-                   border rounded-md cursor-pointer text- hover:bg-red-600 hover:scale-105 hover:text-white ${cartItems.length>0?"bg-red-400":"bg-white"}`}
+                   border rounded-md cursor-pointer text- hover:bg-red-600 hover:scale-105 hover:text-white ${cartItems?.length>0?"bg-red-400":"bg-white"}`}
               >
                 <MdDelete size="16" />
                 <span className="">Làm sạch giỏ hàng</span>
@@ -58,7 +58,7 @@ const CartPage = () => {
             <div className="flow-root">
 
                {
-                cartItems.length > 0 ? (
+                cartItems?.length > 0 ? (
                   <ul role="list" className="-my-6 divide-y divide-gray-200">
                     {
                       cartItems.map((product,index) => (

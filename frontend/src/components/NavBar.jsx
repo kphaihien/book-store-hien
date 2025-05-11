@@ -87,7 +87,7 @@ const NavBar = () => {
                     <Link to="/cart"><button className='flex items-center justify-center p-1 px-2 bg-yellow-400 rounded-sm hover:border-2 sm:px-6'>
                           <CiShoppingCart/>
                           {
-                              cartItems.length > 0 ? <span className='ml-0.5' >{cartItems.length}</span> : <span className='ml-0.5'>0</span>
+                              cartItems?.length > 0 ? <span className='ml-0.5' >{cartItems?.length}</span> : <span className='ml-0.5'>0</span>
                           }
                           
                     </button></Link>

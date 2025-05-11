@@ -34,11 +34,11 @@ const BooksSearchPage = () => {
         <div className='flex flex-col gap-4'>
             <h2>Kết quả tìm kiếm cho: "<span className='font-bold'>{query}</span>"</h2>
             <div className='grid grid-cols-4 gap-9'>
-                {books.length>0&&
+                {books?.length>0&&
                         books.map((book,index)=>(<Link to=""><CardList key={index} book={book}/></Link>))
                 }
             </div>
-            {books.length>8&&<ReactPaginate
+            {books?.length>8&&<ReactPaginate
                                     breakLabel="..."
                                     // initialPage={0}
                                     breakClassName='w-10 h-10 flex items-center justify-center border border-black transition transform px-3  py-1 cursor-pointer hover:bg-yellow-400 hover:font-bold  hover:text-white'

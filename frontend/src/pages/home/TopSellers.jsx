@@ -14,9 +14,10 @@ import { useFetchTopSellerBooksQuery } from '../../redux/features/books/bookApi'
 
 
 const TopSellers = () => {
-    const {data=[],isLoading}=useFetchTopSellerBooksQuery();
+    const {data=[],isLoading,isError}=useFetchTopSellerBooksQuery();
     const books=data?.books
     
+    if(isError){return <div>Xảy ra lỗi</div>}
   return (
     <>
         <div className='py-10'>
