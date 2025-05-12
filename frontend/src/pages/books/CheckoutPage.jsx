@@ -4,7 +4,7 @@ import { useForm } from "react-hook-form"
 import { useAuth } from '../../context/AuthContext';
 import { useCreateOrderMutation } from '../../redux/features/orders/orderApi';
 import Swal from 'sweetalert2';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { clearCart, selectCartQuantity,} from '../../redux/features/cart/cartSlice';
 import { FaArrowLeftLong } from "react-icons/fa6";
 
@@ -18,20 +18,6 @@ const CheckoutPage = () => {
   const totalBook=useSelector(selectCartQuantity)
   const navigate=useNavigate()
   const dispatch=useDispatch()
-  console.log(cartItems);
-  console.log(currentUser,"daylausser");
-  
-
-  // const test1=cartItems.map((item, index) => (
-  //   {
-  //     book_id: item.book._id,
-  //     quantity: item.quantity,
-  //     unit_price: item.book.new_price || item.book.old_price
-  //   }
-  // ))
-  // console.log(test1,"test");
-  
-  
 
 
   const {
@@ -68,7 +54,7 @@ const CheckoutPage = () => {
     }
     
     try {
-      await createOrder(newOrder)
+      await createOrder(newOrder).unwrap()
       await Swal.fire({
         position: "center",
         icon: "success",
@@ -79,6 +65,9 @@ const CheckoutPage = () => {
       dispatch(clearCart())
       await navigate("/orders")
     } catch (error) {
+      if(error.code===500){
+        console.log("Xảy ra lỗi khi tạo đơn hàng: ",error);
+      }
       console.log(error);
 
     }
@@ -91,9 +80,11 @@ const CheckoutPage = () => {
       <div className='w-full h-full p-10 bg-gray-200 rounded-sm py-18'>
         <div className='flex flex-col gap-12'>
           <div className='flex flex-col gap-2'>
-            <div className='flex flex-row items-center gap-3 cursor-pointer hover:underline'>
-              <FaArrowLeftLong className='cursor-pointer hover:text-red-500' size="35" /> <span className='text-md'>Quay lai giỏ hàng</span>
-            </div>
+            <Link to="/cart">
+              <div className='flex flex-row items-center gap-3 cursor-pointer hover:underline'>
+                <FaArrowLeftLong className='cursor-pointer hover:text-red-500' size="35" /> <span className='text-md'>Quay lai giỏ hàng</span>
+              </div>
+            </Link>
             <p className='text-2xl font-bold'>Đơn đặt hàng #1</p>
             <p >Tổng tiền: <span className='font-bold'>{totalPrice}</span></p>
             <p className='font-semibold'>Số sản phẩm: {totalBook}</p>

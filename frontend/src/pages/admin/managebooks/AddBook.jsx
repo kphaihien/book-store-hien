@@ -40,7 +40,7 @@ const AddBook = ({ isOpen, onClose,categories }) => {
                 timer: 1500
             });
         } catch (error) {
-            console.log(error, "hehee");
+            console.log(error);
 
         }
         

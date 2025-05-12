@@ -1,6 +1,6 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { getImgUrl } from '../../utils/getImgUrl';
 import { addToCart, clearCart, decreaseQuantity, increaseQuantity, removeFromCart,  } from '../../redux/features/cart/cartSlice';
 
@@ -17,11 +17,18 @@ import Loading from '../../components/Loading';
 
 const CartPage = () => {
   useScrollToTopOnMount();
+  const navigate=useNavigate()
   const {data:rawData,isLoading}=useFetchAllCategoryQuery()
   const cartItems= useSelector(state=>state.cart.cartItems);
   const categories=rawData?.data
+  const isCheckOutDisabled=!cartItems||cartItems.length===0
   const dispatch=useDispatch()
   const totalPrice=useSelector(state=>state.cart.totalPrice)
+  const handleNavigateCheckOut=()=>{
+    if(!isCheckOutDisabled){
+      navigate("/checkout")
+    }
+  }
   const handleDecreaseToCart=(product)=>{
     dispatch(decreaseQuantity(product))
   }
@@ -130,15 +137,10 @@ const CartPage = () => {
             <p>Tiền tạm tính</p>
             <p>{totalPrice?beautyVND(totalPrice):"0đ"}</p>
           </div>
-          <p className="mt-0.5 text-sm text-gray-500">Phí giao hàng sẽ được tính ở phần thanh toán</p>
-          <div className="mt-6">
-            <Link
-              to="/checkout"
-              className="flex items-center justify-center px-6 py-3 text-base font-medium text-white bg-indigo-600 border border-transparent rounded-md shadow-sm hover:bg-indigo-700"
-            >
-              Thanh toán
-            </Link>
-          </div>
+          <p className="mt-0.5 mb-1 text-sm text-gray-500">Phí giao hàng sẽ được tính ở phần thanh toán</p>
+            <button onClick={handleNavigateCheckOut} className={`flex items-center justify-center w-full px-6 py-3 text-base font-medium text-white border border-transparent rounded-md shadow-sm cursor-pointer ${isCheckOutDisabled?`bg-gray-200 `:"bg-blue-600 hover:bg-blue-700"}`} disabled={isCheckOutDisabled}>
+                Thanh toán
+            </button>
           <div className="flex justify-center mt-6 text-sm text-center text-gray-500">
             <Link to="/">
               or

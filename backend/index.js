@@ -12,6 +12,7 @@ const port =3000
 app.use(express.json())
 app.use(cors({
     origin:"https://book-store-hien-front-end.onrender.com",
+    // origin: "http://localhost:5173",
     credentials:true,
     // allowedHeaders:["Content-Type","Authorization"]
 }))

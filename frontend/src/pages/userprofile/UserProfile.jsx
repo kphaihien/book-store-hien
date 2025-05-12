@@ -8,7 +8,7 @@ import Swal from 'sweetalert2';
 
 const UserProfile = () => {
     const { currentUser,setCurrentUser } = useAuth()
-
+    
     const {
             register,
             handleSubmit,

@@ -2,7 +2,7 @@ import { createContext, useContext, useEffect, useState } from "react";
 import { useLoginUserMutation, useRegisterNewUserMutation } from "../redux/features/auth/authApi";
 import Swal from "sweetalert2";
 import { useNavigate } from "react-router-dom";
-
+import decodeToken from "../utils/decodeToken"
 
 const AuthContext = createContext()
 export const useAuth = () => {
@@ -12,6 +12,7 @@ export const useAuth = () => {
 export const AuthProvide = ({ children }) => {
     const navigate = useNavigate()
     const [loginUser, ] = useLoginUserMutation()
+    const [loading,setLoading]=useState(true)
     const [registerNewUser,] = useRegisterNewUserMutation()
     const [currentUser, setCurrentUser] = useState(null)
 
@@ -52,10 +53,21 @@ export const AuthProvide = ({ children }) => {
 
     const logIn = async (data) => {
         try {
-            const response = await loginUser(data).unwrap()      
-            const token = await response.token;
+            const response = await loginUser(data).unwrap()            
+            const token = await response.token;       
+            const user=await response.user;
+            localStorage.setItem('user',JSON.stringify(user));
             localStorage.setItem('token', token);
             setCurrentUser(response.user)
+            const tokenPayload=decodeToken(token)
+            const expireAt=tokenPayload?.exp *1000 //để đổi ra ms
+            localStorage.setItem('expireAt',expireAt)
+            const timeout=setTimeout(()=>{
+                alert("Phiên đăng nhập đã hết hạn, mời đăng nhập lại!")
+                navigate("/login")
+                logOut()
+            },expireAt-Date.now())
+
             await Swal.fire({
                 position: "center",
                 icon: "success",
@@ -92,18 +104,42 @@ export const AuthProvide = ({ children }) => {
         try {
             setCurrentUser(null)
             localStorage.removeItem('token')
+            localStorage.removeItem('user')
+            localStorage.removeItem('expireAt')
         } catch (error) {
             console.log(error);
 
         }
     }
+    useEffect(()=>{
+        const storedUser=JSON.parse(localStorage.getItem('user'))
+        const token = localStorage.getItem("token");
+        const expireAt = parseInt(localStorage.getItem("expireAt"));
+        if (token && expireAt) {
+            const timeLeft = expireAt - Date.now();
+            if (timeLeft > 0) {
+                setTimeout(() => {
+                    alert("Phiên đăng nhập đã hết hạn, mời đăng nhập lại.");
+                    logOut();
+                    navigate("/login")
+                }, timeLeft);
+            } else {
+                logOut();
+            }
+          }
+        if(storedUser){
+            setCurrentUser(storedUser)
+        }
+        setLoading(false)
+    },[])
 
     const value = {
         currentUser,
         registerUser,
         logIn,
         logOut,
-        setCurrentUser
+        setCurrentUser,
+        loading
     }
 
     return (

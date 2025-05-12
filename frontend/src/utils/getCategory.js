@@ -6,7 +6,6 @@ const getCategory=async(req,res)=>{
             }
         })
         const category = await response.data
-        console.log(category);
     } catch (error) {
         console.log(error);
         

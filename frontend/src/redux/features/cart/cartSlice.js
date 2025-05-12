@@ -13,7 +13,6 @@ const cartSlice=createSlice({
         addToCart:(state,action)=>{
             // const existingItem=state.cartItems.find(item=>item._id===action.payload._id)
             const itemIndex = state.cartItems.findIndex(item => item.book._id === action.payload.book._id);
-            console.log(action);
             
             if(itemIndex==-1){
                 state.cartItems.push({book:action.payload.book,quantity:action.payload.counter})

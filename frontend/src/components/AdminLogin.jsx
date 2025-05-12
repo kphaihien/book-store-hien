@@ -42,7 +42,7 @@ const AdminLogin = () => {
             });
             await navigate("/dashboard")
         } catch (error) {
-            console.log(error, "hehee");
+            console.log(error);
 
         }
 

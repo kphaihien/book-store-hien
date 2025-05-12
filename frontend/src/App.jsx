@@ -14,7 +14,7 @@ function App() {
       <AuthProvide>
         <div className='bg-gray-100'>
         <NavBar />
-        <main className='min-h-screen px-4 py-6 mx-20  max-w-screen-2xl scroll-smooth'>
+        <main className='min-h-screen px-4 py-6 mx-20 max-w-screen scroll-smooth'>
           <Outlet/>
         </main>
         <Footer/>
