@@ -77,7 +77,7 @@ const CartPage = () => {
                                 <h3>
                                   <Link to='/'>{product.book.book_name}</Link>
                                 </h3>
-                                <p className="sm:ml-4">{beautyVND(product.book.new_price)}</p>
+                                {product.book.new_price ? <p className="sm:ml-4">{beautyVND(product.book.new_price)}</p> : <p className="sm:ml-4">{beautyVND(product.book.old_price)}</p>}
                               </div>
                               {
                                 !isLoading && <p className="mt-1 text-sm text-gray-500 capitalize"><strong>Thể loại:{categories.find((cate) => cate._id === product.book.category_id)?.category_name||" Chưa có"}</strong></p>
@@ -128,7 +128,7 @@ const CartPage = () => {
         <div className="px-4 py-6 border-t border-gray-200 sm:px-6">
           <div className="flex justify-between text-base font-medium text-gray-900">
             <p>Tiền tạm tính</p>
-            <p>{totalPrice?beautyVND(totalPrice):beautyVND(0)}</p>
+            <p>{totalPrice?beautyVND(totalPrice):"0đ"}</p>
           </div>
           <p className="mt-0.5 text-sm text-gray-500">Phí giao hàng sẽ được tính ở phần thanh toán</p>
           <div className="mt-6">

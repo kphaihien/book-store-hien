@@ -22,36 +22,6 @@ const categoryApi = createApi({
             query: () => "/",
             providesTags: ["Category"]
         }),
-        // fetchCategoryById: builders.query({
-        //     query: (id) => `/${id}`,
-        //     providesTags: (result, error, id) => [{ type: "Books", id }],
-        // }),
-        // addBook: builders.mutation({
-        //     query: (newBook) => ({
-        //         url: `/create-book`,
-        //         method: "POST",
-        //         body: newBook,
-        //     }),
-        //     invalidatesTags: ["Books"] //sau khi addBook sẽ xem sự thay đổi của cache, nếu có tahy đổi sẽ xóa cache cũ fetchAllbooks và refresh lại cache mới.
-        // }),
-        // updateBook: builders.mutation({
-        //     query: ({ id, ...rest }) => ({
-        //         url: `/edit/${id}`,
-        //         method: "PUT",
-        //         body: rest,
-        //         headers: {
-        //             "Content-Type": "application/json"
-        //         },
-        //     }),
-        //     invalidatesTags: ["Books"]
-        // }),
-        // deleteBook: builders.mutation({
-        //     query: (id) => ({
-        //         url: `delete/${id}`,
-        //         method: "DELETE"
-        //     }),
-        //     invalidatesTags: ["Books"]
-        // })
     })
 })
 

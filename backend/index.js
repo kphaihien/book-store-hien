@@ -16,7 +16,6 @@ app.use(cors({
     // allowedHeaders:["Content-Type","Authorization"]
 }))
 
-//multer để lưu ảnh
 
 
 

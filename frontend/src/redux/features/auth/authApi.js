@@ -4,13 +4,7 @@ import getBaseUrl from '../../../utils/baseUrl'
 const baseQuery = fetchBaseQuery({
     baseUrl: `${getBaseUrl()}/api/auth`,
     credentials: "include",
-    // prepareHeaders: (Headers) => {
-    //     const token = localStorage.getItem('token');
-    //     if (token) {
-    //         Headers.set('Authorization', `Bearer ${token}`)
-    //     }
-    //     return Headers;
-    // }
+
 })
 
 const authApi = createApi({

@@ -8,24 +8,9 @@ import { useGetAllUsersQuery } from "../../../redux/features/users/usersApi";
 import { useFetchOrdersByUserIdQuery } from "../../../redux/features/orders/orderApi";
 
 const UserTable = () => {
-    // Mock data, thay bằng API call nếu cần
-    // const [isAddBookOn, setIsAddBookOn] = useState(false)
-    // const { data: books = [] } = useFetchAllBooksQuery();
-    // const [category, setCategory] = useState([])
+
     const {data,isLoading}=useGetAllUsersQuery()
     
-    // const getCategory = (cateId) => {
-    //     return category?.find((cate) => cate._id === cateId) || null
-    // }
-
-
-    // const handleOnAddBook = () => {
-    //     setIsAddBookOn(true)
-    // }
-
-    // useEffect(() => {
-    //     axios.get(`${getBaseUrl()}/api/category/`).then((res) => setCategory(res.data.data))
-    // }, [])
     if (!isLoading){
         const users=data.users
         
@@ -35,9 +20,6 @@ const UserTable = () => {
                 <CiSquarePlus className="transition transform cursor-pointer hover:scale-110" size="40" />
             </button>
             </Link>
-            {/* {
-                isAddBookOn && <AddBook isOpen={isAddBookOn} onClose={() => setIsAddBookOn(false)} categories={category} />
-            } */}
             <div className="p-6 bg-white rounded-lg shadow-md">
                 <h2 className="mb-4 text-xl font-semibold">Danh sách người dùng</h2>
                 <table className="w-full text-left">
@@ -58,9 +40,6 @@ const UserTable = () => {
                                 <td className="p-3">{user._id}</td>
                                 <td className="p-3">{user.user_name}</td>
                                 <td className="p-3">{user.full_name||"Không có"}</td>
-                                {/* <td className="p-3">{getCategory(book.category_id)
-                                    ? getCategory(book.category_id).category_name
-                                    : 'Không rõ'}</td> */}
                                 <td className="p-3">{user?.user_gender||"Chưa đặt"}</td>
                                 <td className="p-3 transition transform cursor-pointer hover:underline hover:text-yellow-400 hover:font-bold">{"Xem chi tiết"}</td>
                                 <td className="p-3">{user.createdAt || "Không xác định"}</td>

@@ -17,14 +17,6 @@ const AddBook = ({ isOpen, onClose,categories }) => {
         setFile(selectedFile);
     };
     
-    // const [formData, setFormData] = useState({
-    //     book_name: "",
-    //     author: "",
-    //     category: "",
-    //     old_price: "",
-    //     stock: "",
-    //     book_img: "",
-    // });
 
     const onSubmit=async(data)=>{
         
@@ -98,8 +90,6 @@ const AddBook = ({ isOpen, onClose,categories }) => {
                             id="author"
                             name="author"
                             {...register("author", { required: true })}
-                            // value={formData.author}
-                            // onChange={handleChange}
                             className="w-full p-2 mt-1 border rounded-md focus:ring-blue-500 focus:border-blue-500"
                             required
                         />
@@ -116,14 +106,7 @@ const AddBook = ({ isOpen, onClose,categories }) => {
                                     <option key={index} value={cate._id}>{cate.category_name}</option>
                                 ))}
                         </select>
-                        {/* <input
-                            type="text"
-                            id="genre"
-                            name="genre"
-                            // value={formData.genre}
-                            // onChange={handleChange}
-                            className="w-full p-2 mt-1 border rounded-md focus:ring-blue-500 focus:border-blue-500"
-                        /> */}
+
                     </div>
 
                     <div className="mb-4">
@@ -153,8 +136,7 @@ const AddBook = ({ isOpen, onClose,categories }) => {
                             id="stock"
                             min="0"
                             name="stock"
-                            // value={formData.stock}
-                            // onChange={handleChange}
+
                             className="w-full p-2 mt-1 border rounded-md focus:ring-blue-500 focus:border-blue-500"
                             required
                         />
@@ -169,7 +151,7 @@ const AddBook = ({ isOpen, onClose,categories }) => {
                             type="file"
                             id="book_img"
                             name="book_img"
-                            // value={formData.book_img}
+
                             onChange={handleFileChange}
                             className="w-full p-2 mt-1 border rounded-md focus:ring-blue-500 focus:border-blue-500"
                         />

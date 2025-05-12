@@ -3,11 +3,12 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useForm } from "react-hook-form"
 import { useAuth } from '../context/AuthContext';
 import { useRegisterNewUserMutation } from '../redux/features/auth/authApi';
+import useScrollToTopOnMount from '../utils/useScrollToTopOnMount';
 
 
 
 const Register = () => {
-
+    useScrollToTopOnMount()
     const [message,setMessage]=useState();
     const navigate=useNavigate()
     const {registerUser}=useAuth()
@@ -27,12 +28,8 @@ const Register = () => {
                 return;
             }
             await registerUser(data)
-            alert("Đăng kí thành công")
-            navigate("/login")
         } catch (error) {
-            alert("Đăng kí thất bại", error)
-            console.log(error);
-            
+            console.log(error);        
         }
         
     }
@@ -98,7 +95,7 @@ const Register = () => {
                     </div>
                     <button
                         type="submit"
-                        className="w-full py-2 text-white transition bg-blue-500 rounded-lg hover:bg-blue-600"
+                        className="w-full py-2 font-semibold text-white transition transform bg-yellow-400 rounded-lg active:scale-105 hover:bg-yellow-500"
                     >
                         Đăng Ký
                     </button>

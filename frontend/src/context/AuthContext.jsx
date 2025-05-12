@@ -11,26 +11,51 @@ export const useAuth = () => {
 
 export const AuthProvide = ({ children }) => {
     const navigate = useNavigate()
-    const [loginUser, { isError }] = useLoginUserMutation()
-    const [registerNewUser] = useRegisterNewUserMutation()
+    const [loginUser, ] = useLoginUserMutation()
+    const [registerNewUser,] = useRegisterNewUserMutation()
     const [currentUser, setCurrentUser] = useState(null)
 
     //register user
     const registerUser = async (data) => {
         try {
-            const response = await registerNewUser(data)
-            console.log(response);
+            const response = await registerNewUser(data).unwrap()
+                await Swal.fire({
+                    position: "center",
+                    icon: "success",
+                    title: "Đăng kí thành công",
+                    showConfirmButton: false,
+                    timer: 1500
+                }).then(()=>navigate("/login")) 
+
         } catch (error) {
             console.log(error);
+            
+            if (error.status === 409) {
+                await Swal.fire({
+                    position: "center",
+                    icon: "error",
+                    title: error.data.message,
+                    showConfirmButton: false,
+                    timer: 1500
+                })
+            }else if(error.status===500){
+                await Swal.fire({
+                    position: "center",
+                    icon: "error",
+                    title: "Đã xảy ra lỗi khi đăng kí, thử lại sau.",
+                    showConfirmButton: false,
+                    timer: 1500
+                })
+            }
         }
     }
 
     const logIn = async (data) => {
         try {
-            const response = await loginUser(data)
-            const token = await response.data.token;
+            const response = await loginUser(data).unwrap()      
+            const token = await response.token;
             localStorage.setItem('token', token);
-            setCurrentUser(response.data.user)
+            setCurrentUser(response.user)
             await Swal.fire({
                 position: "center",
                 icon: "success",
@@ -40,16 +65,25 @@ export const AuthProvide = ({ children }) => {
             }).then(() => {
                 navigate("/");
             })
-
+            
         } catch (error) {
-            console.log(error, "loi");
-            Swal.fire({
-                position: "center",
-                icon: "error",
-                title: "Email hoặc mật khẩu sai",
-                showConfirmButton: false,
-                timer: 2000
-            });
+            if (error.status === 401) {
+                await Swal.fire({
+                    position: "center",
+                    icon: "error",
+                    title: error.data.message,
+                    showConfirmButton: false,
+                    timer: 1500
+                })
+            } else if (error.status === 500) {
+                await Swal.fire({
+                    position: "center",
+                    icon: "error",
+                    title: "Đã xảy ra lỗi khi đăng nhập, thử lại sau.",
+                    showConfirmButton: false,
+                    timer: 1500
+                })
+            }
         }
     };
 

@@ -6,11 +6,12 @@ import { Link, Navigate, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
 import Swal from 'sweetalert2';
+import useScrollToTopOnMount from '../utils/useScrollToTopOnMount';
 
 const Login = () => {
-    const navigate = useNavigate();
+    useScrollToTopOnMount()
 
-    const { logIn,loading } = useAuth()
+    const { logIn } = useAuth()
     const {
         register,
         handleSubmit,
@@ -20,16 +21,9 @@ const Login = () => {
 
     const onSubmit = async (data) => { 
             try {
-                const response=await logIn(data);
+                await logIn(data);
             } catch (error) {
                 console.log(error);
-                Swal.fire({
-                    position: "center",
-                    icon: "error",
-                    title: "Email hoặc mật khẩu sai",
-                    showConfirmButton: false,
-                    timer: 2000
-                });
             }
         
     }
@@ -59,7 +53,7 @@ const Login = () => {
                     </div>
                     <button
                         type="submit"
-                        className="w-full py-2 text-white transition bg-blue-500 rounded-lg hover:bg-blue-600"
+                        className="w-full py-2 font-semibold text-white transition transform bg-yellow-400 rounded-lg cursor-pointer hover:bg-yellow-500 active:scale-105"
                     >
                         Đăng Nhập
                     </button>

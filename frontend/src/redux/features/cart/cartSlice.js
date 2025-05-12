@@ -89,12 +89,7 @@ const cartSlice=createSlice({
 export const {addToCart,removeFromCart,clearCart,increaseQuantity,decreaseQuantity}=cartSlice.actions
 
 
-// Selector để tính tổng tiền
-// export const selectCartTotal = (state) =>
-//     state.cart.cartItems.reduce((total, item) => {
-//         const price = item.book.new_price ? item.book.new_price : item.book.old_price;
-//         return total + price * item.quantity;
-//     }, 0);
+
 
 export const selectCartQuantity=(state)=>state.cart.cartItems.length
 
