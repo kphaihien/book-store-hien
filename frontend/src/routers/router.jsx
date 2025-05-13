@@ -18,6 +18,7 @@ import ManageUsers from "../pages/admin/manageusers/ManageUsers.jsx";
 import OrderLists from "../pages/orders/OrderLists.jsx";
 import BooksSearchPage from "../pages/searchpage/BooksSearchPage.jsx";
 import UserProfile from "../pages/userprofile/UserProfile.jsx";
+import ManageOrders from "../pages/admin/manageorders/ManageOrders.jsx";
 
 const router =createBrowserRouter([
     {
@@ -96,6 +97,10 @@ const router =createBrowserRouter([
             {
                 path:"users",
                 element:<AdminRoute><ManageUsers/></AdminRoute>
+            },
+            {
+                path:"orders",
+                element:<AdminRoute><ManageOrders/></AdminRoute>
             }
         ]
     }

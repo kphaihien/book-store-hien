@@ -6,6 +6,7 @@ import { Link, Navigate, useNavigate } from 'react-router-dom';
 import axios from "axios"
 import Swal from 'sweetalert2';
 import getBaseUrl from '../utils/baseUrl';
+import decodeToken from '../utils/decodeToken';
 
 const AdminLogin = () => {
     const navigate = useNavigate();
@@ -16,6 +17,9 @@ const AdminLogin = () => {
         watch,
         formState: { errors },
     } = useForm()
+    const handleLogOut=()=>{
+        localStorage.removeItem('token')
+    }
 
     const onSubmit = async (data) => {
         try {
@@ -27,11 +31,15 @@ const AdminLogin = () => {
             const auth =await response.data
             if (auth.token) {
                 localStorage.setItem("token", auth.token)
-                setTimeout(() => {
-                    localStorage.removeItem("token");
-                    alert("Phiên đăng nhập đã hết hạn!")
+                const tokenPayload=decodeToken(auth.token)
+                const expireAt=tokenPayload?.exp *1000 //để đổi ra ms
+                localStorage.setItem('expireAt',expireAt)
+                const timeout=setTimeout(()=>{
+                    alert("Phiên đăng nhập đã hết hạn, mời đăng nhập lại!")
+                    handleLogOut()
                     navigate("/admin")
-                }, 3600 * 1000)
+                    },expireAt-Date.now())
+                
             }
             await Swal.fire({
                 position: "center",
@@ -43,7 +51,15 @@ const AdminLogin = () => {
             await navigate("/dashboard")
         } catch (error) {
             console.log(error);
-
+            if(error.status===401){
+                await Swal.fire({
+                    position: "center",
+                    icon: "error",
+                    title: "Sai tài khoản hoặc mật khẩu",
+                    showConfirmButton: false,
+                    timer: 1500
+                });
+            }
         }
 
     }

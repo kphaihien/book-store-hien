@@ -1,3 +1,4 @@
+const { default: mongoose } = require("mongoose");
 const Order=require("../models/order.model");
 
 //create order
@@ -10,6 +11,28 @@ const createOrder = async (req, res) => {
     } catch (error) {
         console.error("Lỗi khi tạo đơn hàng:", error);
         res.status(500).send({ message: "Thất bại khi tạo đơn hàng" })
+    }
+}
+
+const searchOrdersByAdmin=async(req,res)=>{
+    const q = req.query.q
+    try {
+        if (q === "") {
+            const orders = await Order.find()
+            return res.status(200).send({orders })
+        }
+        const isValidId = mongoose.Types.ObjectId.isValid(q)
+        const orders = await Order.find({
+            $or: [
+                ...(isValidId ? [{ _id: q},
+                                {customer_id:q }] : [])
+            ]
+        })
+        return res.status(200).send({ orders })
+
+    } catch (error) {
+        console.log(error);
+        res.status(500).send({ message: "Xảy ra lỗi khi tìm người dùng" })
     }
 }
 
@@ -49,4 +72,4 @@ const countOrders=async(req,res)=>{
         return res.status(500).send({ message: "Đã xảy ra lỗi!" })
     }
 }
-module.exports={createOrder,fetchAllUserOrder,countOrders}
+module.exports={createOrder,fetchAllUserOrder,countOrders,searchOrdersByAdmin}

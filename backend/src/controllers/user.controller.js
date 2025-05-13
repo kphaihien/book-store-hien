@@ -2,6 +2,7 @@ const express=require("express")
 const User=require("../models/user.model")
 const bcrypt=require("bcryptjs")
 const jwt = require("jsonwebtoken")
+const { default: mongoose } = require("mongoose")
 
 
 const JWT_SECRET = process.env.JWT_SECRET_KEY
@@ -53,4 +54,38 @@ const changeUserInformation=async(req,res)=>{
         return res.status(404).send({ message: "Xảy ra lỗi khi thay đổi thông tin người dùng" })
     }
 }
-module.exports={countUsers,fetchAllUsers,changeUserInformation}
+
+const deleteUser=async(req,res)=>{
+    try {
+        const user_id=req.params.id;
+        const user= await User.findById(user_id);
+        if(!user){return res.status(404).send({message:"Không tìm thấy người dùng!"})}
+        await User.findByIdAndDelete(user_id)
+        return res.status(200).send({message:"Xóa thành công!"})
+    } catch (error) {
+        return res.status(500).send({message:`Lỗi ở server: ${error}`})
+    }
+}
+const searchUser=async(req,res)=>{
+    const q = req.query.q
+    try {
+        if(q===""){
+            const users=await User.find()
+            return res.status(200).send({ users })
+        }
+        const isValidId=mongoose.Types.ObjectId.isValid(q)
+        const users = await User.find({
+            $or:[
+                {user_name: { $regex: q, $options: 'i' }},
+                {email:{$regex:q}},
+                ...(isValidId?[{_id:q}]:[])
+            ]
+        }).collation({ locale: 'vi', strength: 1 }) // không phân biệt dấu tiếng Việt
+        return res.status(200).send({ users })
+
+    } catch (error) {
+        console.log(error);
+        res.status(500).send({ message: "Xảy ra lỗi khi tìm người dùng" })
+    }
+}
+module.exports={countUsers,fetchAllUsers,changeUserInformation,deleteUser,searchUser}

@@ -18,22 +18,6 @@ const usersApi = createApi({
     baseQuery,
     tagTypes: ["Users"],
     endpoints: (builders) => ({
-        // registerNewUser:builders.mutation({
-        //     query:(newUser)=>({
-        //         url:`/user/register`,
-        //         method:"POST",
-        //         invalidatesTags:["Users"],
-        //         body:newUser,
-        //     }),
-        // }),
-        // loginUserWithUserName:builders.mutation({
-        //     query:(data)=>({
-        //         url:`/login`,
-        //         method:"POST",
-        //         providesTags:["Users"],
-        //         body:data
-        //     }),
-        // }),
         getAllUsers:builders.query({
             query:()=>({
                 url:`/`,
@@ -46,10 +30,24 @@ const usersApi = createApi({
                 method:"POST",
                 body:newInfo
             }),
-            invalidatesTags:["User"]
-        })
+            invalidatesTags:["Users"]
+        }),
+        deleteUserWithId:builders.mutation({
+            query:(id)=>({
+                url:`/delete/${id}`,
+                method:"DELETE",
+            }),
+            invalidatesTags:["Users"]
+        }),
+        searchUser:builders.query({
+            query:({q})=>({
+                url:`/search/?q=${q}`,
+                method:"GET"
+            }),
+            providesTags:["Users"]
+        }),
     })
 })
 
-export const { useGetAllUsersQuery,useUpdateUserProfileMutation} = usersApi
+export const { useGetAllUsersQuery,useUpdateUserProfileMutation,useDeleteUserWithIdMutation,useSearchUserQuery} = usersApi
 export default usersApi

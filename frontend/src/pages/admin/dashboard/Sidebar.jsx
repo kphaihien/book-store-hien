@@ -30,7 +30,7 @@ const Sidebar = () => {
                     Quản lý người dùng
                 </Link>
                 <Link
-                    to="/admin/orders"
+                    to="/dashboard/orders"
                     className="flex items-center px-6 py-3 hover:bg-gray-700"
                 >
                     <FaShoppingCart className="mr-3" />
