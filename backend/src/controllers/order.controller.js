@@ -1,13 +1,35 @@
 const { default: mongoose } = require("mongoose");
 const Order=require("../models/order.model");
-
+const { ProductCode, VnpLocale, dateFormat } = require("vnpay")
+const vnpay = require("../config/vnpay.config")
 //create order
 
 const createOrder = async (req, res) => {
     try {
         const newOrder = new Order({ ...req.body });
         const savedOrder=await newOrder.save();
-        res.status(200).send({ message: "Đã tạo đơn hàng", order:savedOrder })
+        if(req.body.payment_type==="vnpay"){
+            const tomorrow = new Date();
+            tomorrow.setDate(tomorrow.getDate() + 1);
+            const ipAddr = req.headers['x-forwarded-for'] ||
+                req.connection.remoteAddress ||
+                req.socket.remoteAddress ||
+                req.connection.socket.remoteAddress;
+            const paymentUrl = vnpay.buildPaymentUrl({
+                vnp_Amount: savedOrder.order_total_cost,
+                vnp_IpAddr: ipAddr,
+                vnp_TxnRef: savedOrder._id,
+                vnp_OrderInfo: `Thanh toan don hang ${savedOrder._id}`,
+                vnp_OrderType: ProductCode.Other,
+                // vnp_ReturnUrl: 'http://localhost:3000/api/payment/vnpay-return',
+                vnp_ReturnUrl: 'https://book-store-hien-backend.onrender.com/api/payment/vnpay-return',
+                vnp_Locale: VnpLocale.VN, // 'vn' hoặc 'en'
+                vnp_CreateDate: dateFormat(new Date()), // tùy chọn, mặc định là thời gian hiện tại
+                vnp_ExpireDate: dateFormat(tomorrow), // tùy chọn
+            });
+            return res.status(200).send({ message: "Đã tạo đơn hàng", order: savedOrder,paymentUrl })
+        }else{
+        return res.status(200).send({ message: "Đã tạo đơn hàng", order:savedOrder })}
     } catch (error) {
         console.error("Lỗi khi tạo đơn hàng:", error);
         res.status(500).send({ message: "Thất bại khi tạo đơn hàng" })

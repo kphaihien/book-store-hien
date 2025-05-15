@@ -54,7 +54,7 @@ const CheckoutPage = () => {
     }
     
     try {
-      await createOrder(newOrder).unwrap()
+      const response=await createOrder(newOrder).unwrap()
       await Swal.fire({
         position: "center",
         icon: "success",
@@ -63,6 +63,7 @@ const CheckoutPage = () => {
         timer: 1500
       });
       dispatch(clearCart())
+      window.open(response.paymentUrl, '_blank');
       await navigate("/orders")
     } catch (error) {
       if(error.code===500){
@@ -143,7 +144,7 @@ const CheckoutPage = () => {
                     className="p-2 border border-gray-300 rounded-lg"
                   >
                     <option key="cash" value="cash">Thanh toán khi nhận hàng</option>
-                    <option key="momo" value="momo">Chuyển khoản Momo</option>
+                    <option key="vnpay" value="vnpay">Chuyển khoản VNPay</option>
                   </select>
                 </div>
 

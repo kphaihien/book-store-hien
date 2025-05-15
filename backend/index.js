@@ -27,12 +27,13 @@ const orderRoutes = require("./src/routes/order.route")
 const userRoutes = require("./src/routes/user.route")
 const authRoutes = require("./src/routes/auth.route")
 const categoryRoute = require("./src/routes/category.route")
+const paymentRoute=require("./src/routes/payment.route")
 app.use("/api/books",bookRoutes)
 app.use("/api/orders",orderRoutes)
 app.use("/api/auth",authRoutes)
 app.use("/api/users",userRoutes)
 app.use("/api/category",categoryRoute)
-
+app.use("/api/payment",paymentRoute)
 async function main() {
     await mongoose.connect(process.env.DB_URL)
 }

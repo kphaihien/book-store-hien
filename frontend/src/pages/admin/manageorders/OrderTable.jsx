@@ -92,6 +92,7 @@ const UserTable = () => {
                             <th className="p-3">Trạng thái đơn hàng</th>
                             <th className="p-3">Thành tiền</th>
                             <th className="p-3">Loại thanh toán</th>
+                            <th className="p-3">Tình trạng thanh toán</th>
                             <th className="p-3">Ngày tạo</th>
                             <th className="p-3">Ngày cập nhật</th>
                         </tr>
@@ -109,8 +110,9 @@ const UserTable = () => {
                                     <td className="p-3">{order.order_status||"Chưa đặt"}</td>
                                     <td className="p-3">{order.order_total_cost || "Không xác định"}</td>
                                     <td className="p-3">{order.payment_type||"Không xác định"}</td>
-                                    <td className="p-3">{order.order_total_cost || "Không xác định"}</td>
-                                    <td className="p-3">{order.payment_type || "Không xác định"}</td>
+                                    <td className="p-3">{order?.payment_status||"Không xác định"}</td>
+                                    <td className="p-3">{order?.createdAt || "Không xác định"}</td>
+                                    <td className="p-3">{order?.updatedAt || "Không xác định"}</td>
                                     <td className="p-3">
                                         {/* <button className="mr-2 text-blue-600 cursor-pointer hover:underline">
                                             Sửa

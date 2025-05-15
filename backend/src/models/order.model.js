@@ -33,10 +33,15 @@ const orderSchema = new Schema({
     },
     payment_type:{
         type:String,
-        enum:["momo","cash"],
+        enum:["vnpay","cash"],
         required:true,
         default:"cash"
-    }//loại thanh toán
+    },//loại thanh toán
+    payment_status:{
+        type:String,
+        enum:["pending","paid"],
+        default:"pending"
+    }
 },{
     timestamps:true,
 });

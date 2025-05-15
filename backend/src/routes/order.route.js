@@ -1,5 +1,5 @@
 const express = require("express");
-const { createOrder, fetchAllUserOrder, countOrders, searchOrdersByAdmin } = require("../controllers/order.controller");
+const { createOrder, fetchAllUserOrder, countOrders, searchOrdersByAdmin} = require("../controllers/order.controller");
 const authenToken = require("../middlewares/authenToken")
 const verifyAdmin = require("../middlewares/verifyAdmin");
 const router = express.Router();

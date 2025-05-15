@@ -4,6 +4,8 @@ import { useAuth } from '../../context/AuthContext'
 import Loading from '../../components/Loading'
 import getBaseUrl from '../../utils/baseUrl'
 
+import beautyVND from '../../utils/beautyVND'
+
 import { PiNoteBlankDuotone } from "react-icons/pi";
 import { FaBox } from "react-icons/fa";
 
@@ -15,6 +17,7 @@ const OrderLists = () => {
     const orders=data?.orders
 
     
+    console.log(orders);
     
     
   if (isLoading) {
@@ -48,9 +51,12 @@ const OrderLists = () => {
                       </div>
            
                       <div className='flex flex-col col-start-2 ml-2'>
-                        <p className='text-lg font-semibold'>
-                          Tổng tiền cần thanh toán: {item.order_total_cost} VND
-                        </p>
+                        <div className='flex flex-row items-center justify-between font-semibold'>
+                          <p className='text-lg '>
+                            Tổng tiền cần thanh toán: {beautyVND(item.order_total_cost)}
+                          </p>
+                          <p>Trạng thái thanh toán: {(item?.payment_status==="paid"?"Đã thanh toán":"Chưa thanh toán")||"Chưa thanh toán"}</p>
+                        </div>
                         <div className='flex flex-row gap-2 text-lg'>
                           Loại thanh toán: {item.payment_type==="cash"?(<p>Thanh toán sau khi nhận hàng</p>):(<p>Chuyển khoản trước</p>)}
                         </div>
