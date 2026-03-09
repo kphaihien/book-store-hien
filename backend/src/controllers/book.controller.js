@@ -1,7 +1,7 @@
 const Category = require("../models/category.model");
 const Book = require("../models/book.model");
-
-
+const {redisClient} = require("../config/redisClient");
+const { setCache, deleteCacheByPattern } = require("../utils/cacheHelper");
 
 //add a book
 const postABook = async (req, res) => {
@@ -14,6 +14,7 @@ const postABook = async (req, res) => {
 
         const newBook = new Book({ ...req.body,book_img:imagePath});
         await newBook.save();
+        await deleteCacheByPattern('books:*');
         res.status(200).send({ message: "Đã thêm sách", book: newBook })
     } catch (error) {
         console.error("Lỗi khi thêm sách:", error);
@@ -58,6 +59,7 @@ const updateBook=async(req,res)=>{
         if(!updateBook){
             res.status(404).send("Không tồn tại")
         }
+        await deleteCacheByPattern('books:*');
         res.status(200).send({message:"Sửa thành công",book:updatedBook})
     } catch (error) {
         console.log("lỗi khi cập nhật sách :", error);
@@ -69,11 +71,13 @@ const updateBook=async(req,res)=>{
 const deleteBook=async(req,res)=>{
     try {
         const { id } = req.params;
-        const deleteBook = await Book.findByIdAndUpdate(id)
+        const deleteBook = await Book.findByIdAndDelete(id)
         if (!deleteBook) {
             res.status(404).send("Không tồn tại")
         }
+        await deleteCacheByPattern('books:*');
         res.status(200).send({ message: "Xóa thành công", book: deleteBook })
+        
     } catch (error) {
         console.log("lỗi khi xóa ", error);
         res.status(500).send({ message: "lỗi khi xóa sách" })
@@ -97,20 +101,40 @@ const fetchBooksByPage=async(req,res)=>{
         const category_id=req.query.category_id||""
         const skip=(page-1)*limit
         
-        if(category_id){
-            const books = await Book.find({category_id:category_id}).select("-link_alt -createdAt -updatedAt").skip(skip).limit(limit)
-            const totalDoc = await Book.countDocuments({category_id:category_id});
-        return res.status(200).send({books,page:page,totalPages:Math.ceil(totalDoc/limit)})
-        }else{
-            const books = await Book.find().select("-link_alt -createdAt -updatedAt").skip(skip).limit(limit)
-            const totalDoc = await Book.countDocuments();
-            return res.status(200).send({ books, page: page, totalPages: Math.ceil(totalDoc / limit)})
+        const cacheKey=`books:page=${page}:limit=${limit}:category_id=${category_id}`
+
+        const cachedData=await redisClient.get(cacheKey)
+        if(cachedData){
+            console.log("Dữ liệu được lấy từ cache");
+            return res.status(200).send(JSON.parse(cachedData))
         }
+
+
+        let books, totalDoc;
+        if (category_id) {
+            [books, totalDoc] = await Promise.all([
+                Book.find({ category_id }).select("-link_alt -createdAt -updatedAt").skip(skip).limit(limit),
+                Book.countDocuments({ category_id })
+            ]);
+            console.log("Dữ liệu được lấy db")
+        } else {
+            [books, totalDoc] = await Promise.all([
+                Book.find().select("-link_alt -createdAt -updatedAt").skip(skip).limit(limit),
+                Book.countDocuments()
+            ]);
+            console.log("Dữ liệu được lấy db")
+        }
+
+        const result = { books, page, totalPages: Math.ceil(totalDoc / limit) };
+
+
+        await setCache(cacheKey, result);
+        return res.status(200).send(result);
         
 
         
     } catch (error) {
-        return res.status(500).send({message:"Xảy ra lỗi khi fetch"})
+        return res.status(500).send({message:"Xảy ra lỗi khi fetch",error:error.message})
     }
 }
 

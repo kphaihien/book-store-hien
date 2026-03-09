@@ -2,8 +2,9 @@ const { default: mongoose } = require("mongoose");
 const Order=require("../models/order.model");
 const { ProductCode, VnpLocale, dateFormat } = require("vnpay")
 const vnpay = require("../config/vnpay.config")
-//create order
 
+
+//create order
 const createOrder = async (req, res) => {
     try {
         const newOrder = new Order({ ...req.body });
@@ -36,32 +37,72 @@ const createOrder = async (req, res) => {
     }
 }
 
-const searchOrdersByAdmin=async(req,res)=>{
+// const searchOrdersByAdmin=async(req,res)=>{
+//     const q = req.query.q
+//     try {
+//         if (q === "") {
+//             const orders = await Order.find()
+//             return res.status(200).send({orders })
+//         }
+//         const isValidId = mongoose.Types.ObjectId.isValid(q)
+//         const orders = await Order.find({
+//             $or: [
+//                 ...(isValidId ? [{ _id: q},
+//                                 {customer_id:q }] : [])
+//             ]
+//         })
+//         return res.status(200).send({ orders })
+
+//     } catch (error) {
+//         console.log(error);
+//         res.status(500).send({ message: "Xảy ra lỗi khi tìm " })
+//     }
+// }
+const searchOrdersByAdmin = async (req, res) => {
     const q = req.query.q
     try {
-        if (q === "") {
-            const orders = await Order.find()
-            return res.status(200).send({orders })
+        const populateBooks = {
+            path: "order_details.book_id",
+            select: "book_name book_img"
         }
-        const isValidId = mongoose.Types.ObjectId.isValid(q)
-        const orders = await Order.find({
-            $or: [
-                ...(isValidId ? [{ _id: q},
-                                {customer_id:q }] : [])
-            ]
-        })
-        return res.status(200).send({ orders })
+
+        let orders;
+        if (q === "") {
+            orders = await Order.find().populate(populateBooks)
+        } else {
+            const isValidId = mongoose.Types.ObjectId.isValid(q)
+            orders = await Order.find({
+                $or: [
+                    ...(isValidId ? [{ _id: q },
+                    { customer_id: q }] : [])
+                ]
+            }).populate(populateBooks)
+        }
+
+        // Flatten order_details: tách book_name, book_img ra ngang hàng
+        const formattedOrders = orders.map(order => ({
+            ...order.toObject(),
+            order_details: order.order_details.map(detail => ({
+                _id: detail._id,
+                book_id: detail.book_id._id,
+                book_name: detail.book_id.book_name,
+                book_img: detail.book_id.book_img,
+                quantity: detail.quantity,
+                unit_price: detail.unit_price,
+            }))
+        }))
+
+        return res.status(200).send({ orders: formattedOrders })
 
     } catch (error) {
-        console.log(error);
-        res.status(500).send({ message: "Xảy ra lỗi khi tìm người dùng" })
+        console.log(error)
+        res.status(500).send({ message: "Xảy ra lỗi khi tìm " })
     }
 }
 
 const fetchAllUserOrder=async(req,res)=>{
     const {currentUserId} =await req.params
     try {    
-        // const orders=await Order.find({customer_id:currentUserId})
         const orders = await Order.find({ customer_id: currentUserId })
             .populate({
                 path: 'order_details.book_id',
@@ -94,4 +135,20 @@ const countOrders=async(req,res)=>{
         return res.status(500).send({ message: "Đã xảy ra lỗi!" })
     }
 }
-module.exports={createOrder,fetchAllUserOrder,countOrders,searchOrdersByAdmin}
+
+const changeOrderStatus=async(req,res)=>{
+    const {orderId}=req.params
+    const {newStatus}=req.body
+    try {
+        const order=await Order.findById(orderId)
+        if(!order) return res.status(404).send({message:"Không tìm thấy đơn hàng"})
+        order.order_status=newStatus
+        await order.save()
+        
+        return res.status(200).send({message:"Cập nhật trạng thái đơn hàng thành công"})
+    } catch (error) {
+        console.error("Lỗi khi changeOrderStatus", error.message, error.stack);
+        return res.status(500).send({ message: "Đã xảy ra lỗi!" })
+    }
+}
+module.exports={createOrder,fetchAllUserOrder,countOrders,searchOrdersByAdmin,changeOrderStatus}

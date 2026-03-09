@@ -34,7 +34,7 @@ router.get("/:id",getSingleBook)
 router.put("/edit/:id",authenToken,verifyAdmin,updateBook)
 
 //deletebook
-router.put("/delete/:id",authenToken,verifyAdmin,deleteBook)
+router.delete("/delete/:id",authenToken,verifyAdmin,deleteBook)
 
 //get single book, luôn luôn để cuối cùng
 router.get("/:id", getSingleBook)

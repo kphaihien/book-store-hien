@@ -2,7 +2,6 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
-// Định nghĩa schema cho địa chỉ (order_address)
 
 
 // Định nghĩa schema cho thông tin người mua (order_buyer)
@@ -28,7 +27,7 @@ const orderSchema = new Schema({
     order_total_cost: { type: Number, required: true, min: 0 },
     order_status: {
         type: String,
-        enum: ['pending', 'shipped', 'delivered', 'cancelled'],
+        enum: ['pending', 'shipping', 'delivered', 'cancelled'],
         default: 'pending',
     },
     payment_type:{
