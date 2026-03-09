@@ -5,7 +5,8 @@ import 'swiper/css/pagination';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Pagination } from 'swiper/modules';
 
-
+import { ReadOutlined } from '@ant-design/icons';
+import { Typography } from 'antd';
 import news1 from "../../assets/news/news-1.png"
 import news2 from "../../assets/news/news-2.png"
 import news3 from "../../assets/news/news-3.png"
@@ -46,11 +47,14 @@ const news = [
 ]
 
 const News = () => {
+    const { Title } = Typography
   return (
     <>
         <div className='py-16'>
-                <h2 className='mb-6 text-3xl font-semibold'>Tin tức</h2>
-                
+                <div className='flex items-center gap-2 mb-6'>
+                                <ReadOutlined style={{ fontSize: 24, color: '#f05a28' }} />
+                                <Title level={3} style={{ margin: 0 }}>Tin tức</Title>
+                            </div>
                 <Swiper
                     slidesPerView={1}
                     spaceBetween={30}

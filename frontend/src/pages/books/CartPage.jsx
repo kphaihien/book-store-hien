@@ -3,9 +3,6 @@ import { useDispatch, useSelector } from 'react-redux'
 import { Link, useNavigate } from 'react-router-dom'
 import { getImgUrl } from '../../utils/getImgUrl';
 import { addToCart, clearCart, decreaseQuantity, increaseQuantity, removeFromCart,  } from '../../redux/features/cart/cartSlice';
-
-
-
 import { MdDelete } from "react-icons/md";
 import { CiShoppingCart, CiSquareMinus, CiSquarePlus } from "react-icons/ci";
 import useScrollToTopOnMount from '../../utils/useScrollToTopOnMount';
@@ -143,7 +140,7 @@ const CartPage = () => {
             </button>
           <div className="flex justify-center mt-6 text-sm text-center text-gray-500">
             <Link to="/">
-              or
+              hoặc
               <button
                 type="button"
 

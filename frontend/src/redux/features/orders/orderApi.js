@@ -32,7 +32,7 @@ const ordersApi=createApi({
                 url:`/search/${q}`,
                 method:"GET"
             }),
-            invalidatesTags:["Orders"]
+            providesTags:["Orders"]
         }),
         fetchOrdersByUserId: builders.query({
             query: (currentUserId) => ({
@@ -41,9 +41,16 @@ const ordersApi=createApi({
             }),
             providesTags:["Orders"]
         }),
- 
+        updateOrderStatus: builders.mutation({
+            query: ({ orderId, newStatus }) => ({
+                url: `/change-order-status/${orderId}`,
+                method: "PUT",
+                body:{newStatus:newStatus},
+            }),
+            invalidatesTags: ["Orders"],
+        }),
     })
 })
 
-export const {useCreateOrderMutation,useFetchOrdersByUserIdQuery,useSearchOrdersQuery}=ordersApi
+export const {useCreateOrderMutation,useFetchOrdersByUserIdQuery,useSearchOrdersQuery,useUpdateOrderStatusMutation}=ordersApi
 export default ordersApi

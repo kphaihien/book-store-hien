@@ -1,78 +1,73 @@
-import React, { useEffect, useState } from 'react'
-import BookCard from '../books/BookCard'
+import React from 'react'
+import CardList from '../detailpage/CardList'
+import { Carousel, Typography, Spin, Alert } from 'antd'
+import { FireOutlined, LeftOutlined, RightOutlined } from '@ant-design/icons'
+import { useFetchTopSellerBooksQuery } from '../../redux/features/books/bookApi'
 
-import { Swiper, SwiperSlide } from 'swiper/react';
-import { Pagination, Navigation, Autoplay } from 'swiper/modules';
-
-
-import 'swiper/css';
-import 'swiper/css/pagination';
-import 'swiper/css/navigation';
-import { useFetchTopSellerBooksQuery } from '../../redux/features/books/bookApi';
-
-
-
+const { Title } = Typography
 
 const TopSellers = () => {
-    const {data=[],isLoading,isError}=useFetchTopSellerBooksQuery();
-    const books=data?.books
-    
-    if(isError){return <div>Xảy ra lỗi</div>}
-  return (
-    <>
-        <div className='py-10'>
-            <h2 className='mb-6 text-3xl font-semibold'>Top bán chạy</h2>
-            {/* <div className='flex items-center mb-8'>
-                <select onChange={(e)=>setSelectedCategory(e.target.value)} name="category" id="category" className='px-4 py-2 bg-gray-300 border rounded-md focus:outline-none'>
-                    {
-                        categories.map((cate,index)=>(
-                            <option value={cate} key={index}>{cate}</option>
-                        ))
-                    }
-                </select>
-            </div> */}
-            {!isLoading&&
+    const { data = [], isLoading, isError } = useFetchTopSellerBooksQuery()
+    const books = data?.books
 
-              <Swiper
-                  slidesPerView={1}
-                  spaceBetween={30}
-                  navigation={true}
-                  breakpoints={{
-                      640: {
-                          slidesPerView: 2,
-                          spaceBetween: 20,
-                      },
-                      768: {
-                          slidesPerView: 2,
-                          spaceBetween: 40,
-                      },
-                      1024: {
-                          slidesPerView: 2,
-                          spaceBetween: 50,
-                      },
-                       1180: {
-                          slidesPerView: 3,
-                          spaceBetween: 50,
-                      },
-                  }}
-                  modules={[Pagination,Navigation,Autoplay]}
-                  autoplay={{delay:2000}}
-                  className="mySwiper"
-              >
-    
-                    {
-                      books.length>0 &&books.map((book, index) => (
-                        <SwiperSlide key={index}>
-                          <BookCard  book={book} />
-                        </SwiperSlide>
-                      ))
+    if (isError) {
+        return <Alert message="Xảy ra lỗi" type="error" showIcon style={{ margin: '20px 0' }} />
+    }
+
+    // Chia books thành các nhóm 3 (mỗi slide hiện 3 cuốn)
+    const chunkBooks = (arr = [], size = 3) => {
+        const result = []
+        for (let i = 0; i < arr.length; i += size) {
+            result.push(arr.slice(i, i + size))
+        }
+        return result
+    }
+
+    const bookGroups = chunkBooks(books, 3)
+
+    return (
+        <div className='py-10'>
+            <div className='flex items-center gap-2 mb-6'>
+                <FireOutlined style={{ fontSize: 24, color: '#f05a28' }} />
+                <Title level={3} style={{ margin: 0 }}>Top bán chạy</Title>
+            </div>
+
+            {isLoading ? (
+                <div className='flex items-center justify-center h-60'>
+                    <Spin size='large' />
+                </div>
+            ) : (
+                <Carousel
+                className='w-full'
+                    autoplay
+                    autoplaySpeed={2500}
+                    arrows
+                    prevArrow={
+                        <div>
+                            <LeftOutlined style={{ color: '#333', fontSize: 18 }} />
+                        </div>
                     }
-                  
-              </Swiper>
-            }
+                    nextArrow={
+                        <div>
+                            <RightOutlined style={{ color: '#333', fontSize: 18 }} />
+                        </div>
+                    }
+                    dots={{ className: 'custom-dots' }}
+                >
+                    {bookGroups.map((group, groupIndex) => (
+                        <div key={groupIndex}>
+                            <div 
+                            className='flex flex-row justify-center px-40 py-8 gap-15'>
+                                {group.map((book, index) => (
+                                    <CardList key={index} book={book} />
+                                ))}
+                            </div>
+                        </div>
+                    ))}
+                </Carousel>
+            )}
         </div>
-    </>
-  )
+    )
 }
 
 export default TopSellers

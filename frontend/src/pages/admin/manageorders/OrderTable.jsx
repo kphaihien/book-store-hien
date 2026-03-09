@@ -1,132 +1,287 @@
-import { CiSquarePlus } from "react-icons/ci";
-import { useFetchAllBooksQuery } from "../../../redux/features/books/bookApi";
-import { Link } from "react-router-dom";
-import { useEffect, useState } from "react";
-import getBaseUrl from "../../../utils/baseUrl";
-import axios from "axios";
-import { CiSearch } from "react-icons/ci";
-import { useDeleteUserWithIdMutation, useGetAllUsersQuery, useSearchUserQuery } from "../../../redux/features/users/usersApi";
-import { useFetchOrdersByUserIdQuery, useSearchOrdersQuery } from "../../../redux/features/orders/orderApi";
-import Swal from "sweetalert2";
+import { useState, useEffect } from "react";
+import {
+    Table, Input, Tag, Button, Tooltip, Typography,
+    Select, message, Popconfirm,
+} from "antd";
+import {
+    SearchOutlined,
+    FileTextOutlined,
+    ShoppingCartOutlined,
+    SyncOutlined,
+} from "@ant-design/icons";
+
+import {
+    useSearchOrdersQuery,
+    useUpdateOrderStatusMutation,
+} from "../../../redux/features/orders/orderApi";
 import Loading from "../../../components/Loading";
-import HoverOrderInfo from "../../../components/HoverOrderInfo";
+import OrderDetailModal from "../../../components/OrderDetailAdminModal";
 
-const UserTable = () => {
+const { Title } = Typography;
+const { Option } = Select;
 
-    // const {data,isLoading}=useGetAllUsersQuery()
-    const [searchQuery, setSearchQuery] = useState("")
+const typePaymentMap = {
+    cash: "COD",
+    vnpay: "VNPay",
+};
+
+const statusPaymentMap = {
+    paid: { label: "Đã thanh toán", color: "green" },
+    unpaid: { label: "Chưa thanh toán", color: "red" },
+    pending: { label: "Đang chờ", color: "orange" },
+};
+
+
+const EDITABLE_STATUSES = [
+    { value: "pending", label: "Chờ xử lý", color: "orange" },
+    { value: "shipping", label: "Đang giao", color: "cyan" },
+    { value: "delivered", label: "Đã giao", color: "green" },
+    { value: "cancelled", label: "Đã hủy", color: "red" },
+];
+
+const orderStatusMap = Object.fromEntries(
+    EDITABLE_STATUSES.map((s) => [s.value, s])
+);
+
+const formatDate = (dateStr) => {
+    if (!dateStr) return "—";
+    return new Date(dateStr).toLocaleString("vi-VN", {
+        day: "2-digit", month: "2-digit", year: "numeric",
+        hour: "2-digit", minute: "2-digit",
+    });
+};
+
+const StatusSelector = ({ orderId, currentStatus }) => {
+    const [updateOrderStatus, { isLoading }] = useUpdateOrderStatusMutation();
+    const [pendingStatus, setPendingStatus] = useState(null);
+    const [open, setOpen] = useState(false);
+
+    const current = orderStatusMap[currentStatus];
+
+    const handleConfirm = async () => {
+        try {
+            await updateOrderStatus({ orderId: orderId, newStatus: pendingStatus }).unwrap();
+            message.success("Cập nhật trạng thái thành công!");
+        } catch (err) {
+            message.error(err?.data?.message || "Cập nhật thất bại!");
+        } finally {
+            setPendingStatus(null);
+            setOpen(false);
+        }
+    };
+
+    return (
+        <Popconfirm
+            title="Thay đổi trạng thái"
+            description={
+                pendingStatus ? (
+                    <span>
+                        Chuyển sang{" "}
+                        <Tag color={orderStatusMap[pendingStatus]?.color}>
+                            {orderStatusMap[pendingStatus]?.label}
+                        </Tag>
+                        ?
+                    </span>
+                ) : null
+            }
+            open={open}
+            onConfirm={handleConfirm}
+            onCancel={() => { setPendingStatus(null); setOpen(false); }}
+            okText="Xác nhận"
+            cancelText="Hủy"
+            okButtonProps={{ loading: isLoading }}
+        >
+            <Select
+            className="w-full"
+                value={currentStatus}
+                size="small"
+                loading={isLoading}
+                suffixIcon={<SyncOutlined className={isLoading ? "animate-spin" : ""} />}
+                onChange={(val) => {
+                    setPendingStatus(val);
+                    setOpen(true);
+                }}
+
+                optionLabelProp="label"
+            >
+                {EDITABLE_STATUSES.map((s) => (
+                    <Option
+                        key={s.value}
+                        value={s.value}
+                        label={
+                            <Tag color={s.color} className="w-full m-0 ">
+                                {s.label}
+                            </Tag>
+                        }
+                        disabled={s.value === currentStatus}
+                    >
+                        <Tag className="w-full " color={s.color}>
+                            {s.label}
+                        </Tag>
+                    </Option>
+                ))}
+            </Select>
+        </Popconfirm>
+    );
+};
+
+const OrderTable = () => {
+    const [searchQuery, setSearchQuery] = useState("");
     const [debouncedQuery, setDebouncedQuery] = useState("");
+    const [selectedOrder, setSelectedOrder] = useState(null);
 
     useEffect(() => {
-        const handler = setTimeout(() => {
-            setDebouncedQuery(searchQuery);
-        }, 1000);
-
-        return () => {
-            clearTimeout(handler); // huỷ timeout cũ nếu user gõ tiếp
-        };
+        const handler = setTimeout(() => setDebouncedQuery(searchQuery), 800);
+        return () => clearTimeout(handler);
     }, [searchQuery]);
-    const {data,isLoading}=useSearchOrdersQuery({q:debouncedQuery})
-    const [orders, setOrders] = useState([])
-    // const handleDeleteUser=async(user_id)=>{
-    //     try {
-    //         const result =await Swal.fire({
-    //                             position: "center",
-    //                             icon: "warning",
-    //                             title: "Bạn có chắc muốn xóa người dùng này ?",
-    //                             showCancelButton:true,
-    //                             showConfirmButton: true,
-    //                             cancelButtonText:"Hủy",
-    //                             confirmButtonText:"Đồng ý!"
-    //                         })
-    //         if(result.isConfirmed){
-    //             const response=await deleteUserWithId(user_id).unwrap()
-    //             await Swal.fire({
-    //                 position: "center",
-    //                 icon: "success",
-    //                 title: "Đã xóa",
-    //                 timer:2000,
-    //             })
-    //             console.log(response);
-                
-    //         }
-    //     } catch (error) {
-    //         console.log(error);
-            
-    //     }
-    // }
-    useEffect(()=>{
-        if(data){
-            setOrders(data.orders)
-        }
-    },[data])
 
-    const [showDetail,setShowDetail]=useState(false)
+    const { data, } = useSearchOrdersQuery({ q: debouncedQuery });
+    const orders = data?.orders || [];
 
-    if(isLoading){return <Loading/>}
-    if(data===undefined){return <div>Dữ liệu trống</div>}
+    const columns = [
+        {
+            title: "ID đơn hàng",
+            dataIndex: "_id",
+            key: "_id",
+            width: 165,
+            render: (id) => (
+                <span className="font-mono text-xs text-gray-400 truncate block max-w-[148px]">
+                    {id}
+                </span>
+            ),
+        },
 
-        
+        {
+            title: "Chi tiết",
+            key: "detail",
+            width: 90,
+            align: "center",
+            render: (_, record) => (
+                <Tooltip title="Xem chi tiết đơn hàng">
+                    <Button
+                        type="link"
+                        size="small"
+                        icon={<FileTextOutlined />}
+                        onClick={() => setSelectedOrder(record)}
+                    >
+                        Xem
+                    </Button>
+                </Tooltip>
+            ),
+        },
+        {
+            title: "Trạng thái đơn",
+            dataIndex: "order_status",
+            key: "order_status",
+            width: 160,
+            align: "center",
+            render: (status, record) => (
+                <StatusSelector orderId={record._id} currentStatus={status} />
+            ),
+        },
+        {
+            title: "Thành tiền",
+            dataIndex: "order_total_cost",
+            key: "order_total_cost",
+            width: 130,
+            align: "right",
+            render: (cost) => (
+                <span className="text-sm font-semibold text-emerald-600">
+                    {cost ? Number(cost).toLocaleString("vi-VN") + "₫" : "—"}
+                </span>
+            ),
+        },
+        {
+            title: "Thanh toán",
+            dataIndex: "payment_type",
+            key: "payment_type",
+            width: 110,
+            align: "center",
+            render: (type) => (
+                <Tag color={type === "vnpay" ? "purple" : "geekblue"}>
+                    {typePaymentMap[type] || "Không rõ"}
+                </Tag>
+            ),
+        },
+        {
+            title: "Tình trạng TT",
+            dataIndex: "payment_status",
+            key: "payment_status",
+            width: 145,
+            align: "center",
+            render: (status) => {
+                const s = statusPaymentMap[status];
+                return s ? <Tag color={s.color}>{s.label}</Tag> : <Tag>Không rõ</Tag>;
+            },
+        },
+        {
+            title: "Ngày tạo",
+            dataIndex: "createdAt",
+            key: "createdAt",
+            width: 140,
+            render: (d) => <span className="text-xs text-gray-400">{formatDate(d)}</span>,
+        },
+        {
+            title: "Cập nhật",
+            dataIndex: "updatedAt",
+            key: "updatedAt",
+            width: 140,
+            render: (d) => <span className="text-xs text-gray-400">{formatDate(d)}</span>,
+        },
+    ];
+
+    // if (isLoading) return <Loading />;
+
     return (
-        <div className="flex flex-col gap-3">
-            <div className="flex flex-row items-center justify-between">
-                <div className="flex flex-row items-center w-1/4 bg-white border rounded-lg">
-                    <CiSearch className="w-6 h-6 m-1"/>
-                    <input
-                        type="text"
-                        className="w-full p-2 text-gray-700 rounded-lg focus:outline-none "
-                        placeholder="Tìm kiếm theo tên đăng nhập, ID"
-                        value={searchQuery}
-                        onChange={(e)=>setSearchQuery(e.target.value)}
-                    />
+        <div className="flex flex-col gap-4 p-4">
+            {/* Header */}
+            <div className="flex flex-wrap items-center justify-between gap-3">
+                <div className="flex items-center gap-2">
+                    <ShoppingCartOutlined className="text-xl text-blue-500" />
+                    <Title level={4} className="!mb-0 !text-gray-800">
+                        Quản lý đơn hàng
+                    </Title>
+                    <Tag color="blue" className="ml-1">
+                        {orders.length} đơn
+                    </Tag>
                 </div>
+
+                <Input
+                    allowClear
+                    prefix={<SearchOutlined className="text-gray-400" />}
+                    placeholder="Tìm theo tên đăng nhập, ID..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="max-w-xs"
+                />
             </div>
-            <div className="p-6 bg-white rounded-lg shadow-md">
-                <h2 className="mb-4 text-xl font-semibold">Danh sách đơn hàng</h2>
-                <table className="w-full text-left">
-                    <thead>
-                        <tr className="w-full text-center bg-gray-100">
-                            <th className="p-3">ID đơn hàng</th>
-                            <th className="p-3">ID người đặt</th>
-                            <th className="p-3">Thông tin chi tiết</th>
-                            <th className="p-3">Trạng thái đơn hàng</th>
-                            <th className="p-3">Thành tiền</th>
-                            <th className="p-3">Loại thanh toán</th>
-                            <th className="p-3">Tình trạng thanh toán</th>
-                            <th className="p-3">Ngày tạo</th>
-                            <th className="p-3">Ngày cập nhật</th>
-                        </tr>
-                    </thead>
-                    {isLoading?<div>Đang tìm kiếm...</div>:(
-                        <tbody>
-                            {orders.map((order, index) => (
-                                <tr key={index} className="w-full text-center border-b ">
-                                    <td className="p-3">{order._id}</td>
-                                    <td className="p-3">{order.customer_id}</td>
-                                    <td onClick={()=>setShowDetail(true)} className="p-3 cursor-pointer hover:underline">{"Xem chi tiết"}</td>
-                                    {showDetail && (
-                                        <HoverOrderInfo  order_details={order.order_details} order_buyer={order.order_buyer} onClose={()=>setShowDetail(false)}/>
-                                    )}
-                                    <td className="p-3">{order.order_status||"Chưa đặt"}</td>
-                                    <td className="p-3">{order.order_total_cost || "Không xác định"}</td>
-                                    <td className="p-3">{order.payment_type||"Không xác định"}</td>
-                                    <td className="p-3">{order?.payment_status||"Không xác định"}</td>
-                                    <td className="p-3">{order?.createdAt || "Không xác định"}</td>
-                                    <td className="p-3">{order?.updatedAt || "Không xác định"}</td>
-                                    <td className="p-3">
-                                        {/* <button className="mr-2 text-blue-600 cursor-pointer hover:underline">
-                                            Sửa
-                                        </button> */}
-                                        <button onClick={()=>handleDeleteUser(user._id)} className="text-red-600 cursor-pointer hover:underline">Xóa</button>
-                                    </td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    )}
-                </table>
+
+            {/* Table */}
+            <div className="overflow-hidden bg-white border border-gray-100 shadow-sm rounded-xl">
+                <Table
+                    columns={columns}
+                    dataSource={orders}
+                    rowKey="_id"
+                    // loading={isLoading}
+                    pagination={{
+                        pageSize: 10,
+                        showSizeChanger: true,
+                        showTotal: (total) => `Tổng ${total} đơn hàng`,
+                        className: "px-4 pb-2",
+                    }}
+                    rowClassName="hover:bg-blue-50/40 transition-colors"
+                    scroll={{ x: 1200 }}
+                    size="middle"
+                />
             </div>
+
+            {/* Order Detail Modal */}
+            <OrderDetailModal
+                order={selectedOrder}
+                onClose={() => setSelectedOrder(null)}
+            />
         </div>
     );
+};
 
-}
-export default UserTable;
+export default OrderTable;

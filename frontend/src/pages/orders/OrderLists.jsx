@@ -1,85 +1,55 @@
-import React from 'react'
-import { useFetchOrdersByUserIdQuery } from '../../redux/features/orders/orderApi'
-import { useAuth } from '../../context/AuthContext'
-import Loading from '../../components/Loading'
-import getBaseUrl from '../../utils/baseUrl'
+import { Tag, Timeline, Empty, Divider, Tooltip } from "antd";
+import { PiPackageDuotone } from "react-icons/pi";
 
-import beautyVND from '../../utils/beautyVND'
+import { useFetchOrdersByUserIdQuery } from "../../redux/features/orders/orderApi";
+import { useAuth } from "../../context/AuthContext";
+import Loading from "../../components/Loading";
 
-import { PiNoteBlankDuotone } from "react-icons/pi";
-import { FaBox } from "react-icons/fa";
+import OrderCardUser from "../../components/OrderCardUser";
 
-
-import OrderStatus from '../../components/OrderStatus'
 const OrderLists = () => {
-    const {currentUser}=useAuth()
-    const {data,isLoading}=useFetchOrdersByUserIdQuery(currentUser.id);
-    const orders=data?.orders
+  const { currentUser } = useAuth();
+  const { data, isLoading } = useFetchOrdersByUserIdQuery(currentUser.id);
+  const orders = data?.orders;
 
-    
-    console.log(orders);
-    
-    
-  if (isLoading) {
-    return <Loading/>
-  }
-    
+  if (isLoading) return <Loading />;
+
   return (
-    <>
-        <div className='flex flex-col gap-3'>
-            <div className='flex flex-row items-center justify-start gap-3'>
-              <h1 className='text-4xl font-bold '>Đơn hàng của tôi</h1>
-              <FaBox className="mt-2 w-7 h-7"/>
-            </div>
-            <div className='flex flex-col w-full gap-5 rounded-lg'>
-                {
-                  orders&&orders.map((item,index)=>(
-                    <div className='grid w-full grid-cols-2 p-3 px-4 bg-white rounded-lg shadow-xl h-46'>
-                      <div>
-                        <h2 className='text-xl font-bold '>Đơn hàng thứ {index+1}</h2>
-                        <div className='overflow-y-auto h-35'>
-                          {item?.order_details.map((product,index)=>(
-                            <>
-                              <div className='flex flex-row items-center h-12 gap-3 pb-2'>
-                                <img  className='w-10 h-10' src={`${getBaseUrl()}/public/${product.book_img}`}/>
-                                <p className='text-lg font-semibold'>{product.book_name}</p>
-                                <p>Số lượng:{product.quantity}</p>
-                              </div>
-                            </>
-                          ))}
-                        </div>
-                      </div>
-           
-                      <div className='flex flex-col col-start-2 ml-2'>
-                        <div className='flex flex-row items-center justify-between font-semibold'>
-                          <p className='text-lg '>
-                            Tổng tiền cần thanh toán: {beautyVND(item.order_total_cost)}
-                          </p>
-                          <p>Trạng thái thanh toán: {(item?.payment_status==="paid"?"Đã thanh toán":"Chưa thanh toán")||"Chưa thanh toán"}</p>
-                        </div>
-                        <div className='flex flex-row gap-2 text-lg'>
-                          Loại thanh toán: {item.payment_type==="cash"?(<p>Thanh toán sau khi nhận hàng</p>):(<p>Chuyển khoản trước</p>)}
-                        </div>
-                        <div>
-                          <p>Trạng thái đơn hàng: </p>
-                          {
-                            <OrderStatus status={item?.order_status}/>
-                          }
-                        </div>
-                      </div>
-                    </div>
-                  ))
-                }
-                {
-                  !orders&&(<div className='flex flex-col items-center justify-center h-screen'>
-                    <PiNoteBlankDuotone className='opacity-40 h-45 w-45'/>
-                    <p className='text-lg text-gray-400'>Chưa có đơn hàng nào</p>
-                  </div>)
-                }
-            </div>
-        </div>
-    </>
-  )
-}
+    <div className="flex flex-col max-w-4xl gap-5 px-4 py-6 mx-auto">
 
-export default OrderLists
+
+      <div className="flex items-center gap-3">
+        <PiPackageDuotone className="flex-shrink-0 w-8 h-8 text-yellow-500" />
+        <div>
+          <h1 className="text-2xl font-bold leading-tight text-gray-800">Đơn hàng của tôi</h1>
+          {orders?.length > 0 && (
+            <p className="text-sm text-gray-400">{orders.length} đơn hàng</p>
+          )}
+        </div>
+      </div>
+
+
+      {orders?.length > 0 ? (
+        <div className="flex flex-col gap-4">
+          {orders.map((order, index) => (
+            <OrderCardUser key={order._id || index} order={order} index={index} />
+          ))}
+        </div>
+      ) : (
+        <div className="flex flex-col items-center justify-center py-24 bg-white border border-gray-100 rounded-2xl">
+          <Empty
+            image={
+              <PiPackageDuotone className="w-20 h-20 mx-auto text-gray-200" />
+            }
+            imageStyle={{ height: "auto" }}
+            description={
+              <span className="text-base text-gray-400">Bạn chưa có đơn hàng nào</span>
+            }
+          />
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default OrderLists;
